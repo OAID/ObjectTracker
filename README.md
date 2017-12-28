@@ -65,6 +65,9 @@ cmake ../
 make -j 4
 ```
 
+### Performance Report
+* [Performance Report PDF](performance_report.pdf)
+
 # Commercial Use (US)
 The code using linear correlation filters may be affected by a US patent. If you want to use this code commercially in the US please refer to http://www.cs.colostate.edu/~vision/ocof_toolset_2012/index.php for possible patent claims.
 
