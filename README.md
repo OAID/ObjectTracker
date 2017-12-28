@@ -59,10 +59,10 @@ Refer to the sample folder to see usage and config file examples.
 * Install OpenCV 3.x and CMake.
 * Configure and compile:
 ```
-mkdir <src-dir>/build
-cd <src-dir>/build
+mkdir <top-dir>/build
+cd <top-dir>/build
 cmake ../
-make -j 8
+make -j 4
 ```
 
 # Commercial Use (US)
