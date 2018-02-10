@@ -9,6 +9,7 @@ set(OPENTLD_INCLUDE_DIRS
     ${src_dir}/src/libopentld/tld
     ${src_dir}/src/libopentld/mftracker
     ${src_dir}/src/libopentld/imacq
+    ${src_dir}/src/opentld/main/json
     ${src_dir}/src/opentld/main)
 INCLUDE_DIRECTORIES(${OPENTLD_INCLUDE_DIRS})
 

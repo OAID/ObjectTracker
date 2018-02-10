@@ -20,11 +20,19 @@ add_library(main
     main/Main.cpp
     main/Settings.cpp
     main/Trajectory.cpp
+    main/json.cpp
     main/Config.h
     main/Gui.h
     main/Main.h
     main/Settings.h
     main/Trajectory.h
+    main/json/json.h
+    main/json/json-forwards.h
+    main/perf.h
+    main/log.h
+    main/tools/jsoncpp.cpp
+    main/tools/log.cpp
+    main/tools/perf.cpp
     ../3rdparty/cf_tracking/src/cf_libs/common/cf_tracker.hpp)
 
 target_link_libraries(main libopentld config++ ${OpenCV_LIBS})

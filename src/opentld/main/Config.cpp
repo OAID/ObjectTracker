@@ -18,10 +18,81 @@
 */
 
 #include "Config.h"
-
+#include <fstream>
 #include "Main.h"
+#include <perf.h>
+#include <log.h>
+#include "json/json.h"
+
 
 using namespace std;
+
+bool learningEnabled = false;
+bool alternating = false;
+bool showOutput = false;
+float threshold = 0.0;
+int seed = 0;
+int camNo = 0;
+bool useDsstTracker = false;
+
+bool parse_config(const char * path)
+{
+	std::ifstream ifs;
+	Json::Reader reader;
+	Json::Value root;
+
+	ifs.open(path, std::ios::in | std::ios::binary);
+	if (ifs.is_open() == false) {
+		std::cout << "Open file failed!\n";
+		return false;
+	}
+
+	if (!reader.parse(ifs, root, false)) {
+		std::cout << "Read file failed!\n";
+		ifs.close();
+		return false;
+	}
+
+	//	memset(&config, 0, sizeof(person_info_config));
+
+	learningEnabled = root["learningEnabled"].asBool();
+	alternating = root["alternating"].asBool();
+	showOutput = root["showOutput"].asBool();
+	threshold = root["threshold"].asFloat();
+	seed = root["seed"].asInt();
+	camNo = root["camNo"].asInt();
+	useDsstTracker = root["useDsstTracker"].asBool();
+
+	ifs.close();
+	return true;
+}
+
+void show_params()
+{
+	std::cout << "\nlearningEnabled: " << learningEnabled;
+	std::cout << "\nalternating: " << alternating;
+	std::cout << "\nshowOutput: " << showOutput;
+	std::cout << "\nthreshold: " << threshold;
+	std::cout << "\nseed: " << seed;
+	std::cout << "\ncamNo: " << camNo;
+	std::cout << "\nuseDsstTracker: " << useDsstTracker <<"\n";
+}
+
+void default_config()
+{
+	std::cout << "Config error, using default parameters.\n";
+
+	learningEnabled = true;
+	alternating = false;
+	showOutput = true;
+	threshold = 0.5;
+	seed = 0;
+	camNo = 0;
+	useDsstTracker = false;
+
+	show_params();
+}
+
 
 namespace tld
 {
@@ -79,6 +150,28 @@ namespace tld
 
     int Config::init(int argc, char **argv)
     {
+
+		/* load parameters from json. */
+		std::string config_filename = "./../../src/opentld/main/trackerTld.json";
+		if (parse_config(config_filename.data()))
+		{
+			log_printf("Config from json file: \n");
+			show_params();
+		}
+		else
+		{
+			default_config();
+		}
+
+
+		m_settings.m_learningEnabled = learningEnabled;
+		m_settings.m_alternating = alternating;
+		m_settings.m_showOutput = showOutput;
+		m_settings.m_threshold = threshold;
+		m_settings.m_seed = seed;
+		m_settings.m_camNo = camNo;
+		m_settings.m_useDsstTracker = useDsstTracker;
+
         // check cli arguments
         int c;
 
@@ -167,9 +260,10 @@ namespace tld
             }
         }
 
+
         if (!m_imagePathSet && m_methodSet && (m_settings.m_method == IMACQ_VID || m_settings.m_method == IMACQ_IMGS))
         {
-            cerr << "Error: Must set imagePath and method if capturing from images or a video." << endl;
+            log_error("Error: Must set imagePath and method if capturing from images or a video.");
             return PROGRAM_EXIT;
         }
 

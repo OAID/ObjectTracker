@@ -1,0 +1,9 @@
+{
+  "learningEnabled": true,
+  "alternating": false,
+  "showOutput": true,
+  "threshold": 0.5,
+  "seed": 0,
+  "camNo": 0,
+  "useDsstTracker": false
+}

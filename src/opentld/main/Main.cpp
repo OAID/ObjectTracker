@@ -31,13 +31,18 @@
 #include "TLDUtil.h"
 #include "Trajectory.h"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <perf.h>
+#include <log.h>
 
 using namespace tld;
 using namespace cv;
 
 void Main::doWork()
 {
+	perf t;
+	perf avt;
     Trajectory trajectory;
+	log_config_init();
     IplImage *img = imAcqGetImg(imAcq);
     Mat colorImage = cvarrToMat(img, true);
 
@@ -76,7 +81,7 @@ void Main::doWork()
         resultsFile = fopen(printResults, "w");
         if (!resultsFile)
         {
-            fprintf(stderr, "Error: Unable to create results-file \"%s\"\n", printResults);
+			fprintf(stderr, "Error: Unable to create results-file \"%s\"\n", printResults);
             exit(-1);
         }
     }
@@ -85,17 +90,18 @@ void Main::doWork()
     bool skipProcessingOnce = false;
     bool paused = false;
     bool step = false;
-    double tic = 0;
-    double toc = 0;
+	double avfps = 0;
+	int avcount = 0;
 
     if (initialBB != NULL)
     {
         Rect bb = tldArrayToRect(initialBB);
 
-        printf("Starting at %d %d %d %d\n", bb.x, bb.y, bb.width, bb.height);
-        tic = static_cast<double>(getTickCount());
+		log_printf("Starting at %d %d %d %d\n", bb.x, bb.y, bb.width, bb.height);
+		t.start();
         tld->selectObject(colorImage, &bb);
-        toc = getTickCount() - tic;
+		double fps = (double(1000) / (t.gettimegap()));
+//        toc = getTickCount() - tic;
         skipProcessingOnce = true;
         reuseFrameOnce = true;
     }
@@ -113,23 +119,41 @@ void Main::doWork()
 
             if (img == NULL)
             {
-                printf("current image is NULL, assuming end of input.\n");
+				log_printf("current image is NULL, assuming end of input.\n");
                 break;
             }
         }
 
+        double fps = 0.0;
+
         if (!skipProcessingOnce && (!paused || step))
         {
-            tic = static_cast<double>(getTickCount());
+            
+			if (avcount % 100 == 0)
+			{
+				avt.start();
+			}
+			avt.recovery();
+			t.start();
+			
             tld->processImage(colorImage);
-            toc = getTickCount() - tic;
+
+			avt.pause();
+			avcount++;
+			if (avcount % 100 == 0)
+			{
+				avfps = (double(100000000)/(avt.gettimegap()));
+			}
+
+           fps = (double(1000000)/(t.gettimegap()));
+
         }
         else
         {
             skipProcessingOnce = false;
         }
 
-        float fps = static_cast<float>(getTickFrequency() / toc);
+        //double fps = (double(1000000)/(t.gettimegap()));
 
         if (printResults != NULL)
         {
@@ -158,8 +182,8 @@ void Main::doWork()
                 strcpy(learningString, "Learning");
             }
 
-            sprintf(string, "#%d, fps: %.2f, #numwindows:%d, %s", imAcq->currentFrame - 1,
-                fps, tld->detectorCascade->numWindows, learningString);
+            sprintf(string, "#%d, fps: %.2f, avfps: %.2f, #numwindows:%d, %s", imAcq->currentFrame - 1,
+                fps, avfps, tld->detectorCascade->numWindows, learningString);
             CvScalar yellow = CV_RGB(255, 255, 0);
             CvScalar blue = CV_RGB(0, 0, 255);
             CvScalar black = CV_RGB(0, 0, 0);
@@ -200,13 +224,13 @@ void Main::doWork()
                 if (key == 'l')
                 {
                     tld->learningEnabled = !tld->learningEnabled;
-                    printf("LearningEnabled: %d\n", tld->learningEnabled);
+					log_printf("LearningEnabled: %d\n", tld->learningEnabled);
                 }
 
                 if (key == 'a')
                 {
                     tld->alternating = !tld->alternating;
-                    printf("alternating: %d\n", tld->alternating);
+					log_printf("alternating: %d\n", tld->alternating);
                 }
 
                 if (key == 'r')

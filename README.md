@@ -1,72 +1,36 @@
-# Introduction
+# ObjectTracker
 
 This is a fork of the [C++ implementation of OpenTLD](https://github.com/gnebehay/OpenTLD) called TrackTLD.
 OpenTLD was originally proposed in [1] and implemented by Georg Nebehay in C++.
 
 This fork uses C++ implementations of correlation filter based trackers as short-term trackers. Both short-term trackers are modified variants of the visual trackers proposed in [2,3].
-The short-term trackers are extended with target loss detection capabilities as in [4] and use the C++ implementation [5] of the FHOG features proposed in [6]. More implementation details of the short-term trackers can be found [here](src/3rdparty/cf_tracking/README.md). The detection cascade is only used to suggest possible target locations to the short-term trackers for redetection purposes. It cannot reinitialize the short-term trackers. The short-term trackers decide whether a suggested patch actually contains the target.
+The short-term trackers are extended with target loss detection capabilities as in [4] and use the C++ implementation [5] of the FHOG features proposed in [6]. The detection cascade is only used to suggest possible target locations to the short-term trackers for redetection purposes. It cannot reinitialize the short-term trackers. The short-term trackers decide whether a suggested patch actually contains the target.
 
 The system starts with the KCFcpp as default short-term tracker.
 
 # Usage
-If you have a webcam attached to your RK3399 or 96board, you can simply execute cftld in order to try it out.
+If you have a webcam attached to your ROCK960, you can simply execute cftld in order to
+try it out.
+
+Press 'r' key, drag the mouse to draw the box to be tracked target. And press the Enter key to start tracking.
+
 ### Keyboard shortcuts
 * `r` select a target
 * `q` quit
 * `l` toggle learning
 * `a` toggle alternating mode (if true, detector is switched off when tracker is available)
 
-### Command line options
-#### Synopsis
-`cftld [option arguments] [arguments]`
+### Documents
+* [Installation instructions](installation.md)
+* [Accuracy test instructions](accuracy_test_instruction.md)
+* [Performance Report PDF](performance_report_objecttraker.pdf)
 
-#### option arguments
-* `-x Use DSSTcpp instead of KCFcpp as short-term tracker. KCFcpp is the default short-term tracker.`
-* `[-a <startFrameNumber>]` video starts at the frameNumber _startFrameNumber_
-* `[-b <x,y,w,h>]` Initial bounding box
-* `[-d <device>]` select input device: _device_=(IMGS|CAM|VID|STREAM)  
-	_IMGS_: capture from images  
-	_CAM_: capture from connected camera  
-	_VID_: capture from a video  
-	_STREAM_: capture from RTSP stream
-* `[-f]` shows foreground
-* `[-i <path>]` _path_ to the images or to the video.
-* `[-j <number>]` show trajectory for the last _number_ frames
-* `[-h]` shows help
-* `[-n <number>]` Specifies the video device to use (defaults to 0). Useful to select a different camera when multiple cameras are connected.
-* `[-p path]` prints results into the file _path_
-* `[-s]` if set, user can select initial bounding box
-* `[-t <theta>]` threshold for determining positive results
-* `[-z <lastFrameNumber>]` video ends at the frameNumber _lastFrameNumber_.
-	If _lastFrameNumber_ is 0 or the option argument isn't specified means
-	all frames are taken.
+# Release History
 
-#### Arguments
-`[CONFIG_FILE]` path to config file
+### Version 0.1.3 - 2018-02-05 
+* Add script to test accuracy.
+* Add 2xA72 and 4xA53 performance data.
 
-### Config files
-Refer to the sample folder to see usage and config file examples.
-
-# Build
-### Dependencies
-* C++11
-* OpenCV 3.x
-* CMake
-* libconfig++ (provided)
-* ARM NEON -capable CPU
-
-### Ubuntu 16.04
-* Install OpenCV 3.x and CMake.
-* Configure and compile:
-```
-mkdir <top-dir>/build
-cd <top-dir>/build
-cmake ../
-make -j 4
-```
-
-### Performance Report
-* [Performance Report PDF](performance_report.pdf)
 
 # Commercial Use (US)
 The code using linear correlation filters may be affected by a US patent. If you want to use this code commercially in the US please refer to http://www.cs.colostate.edu/~vision/ocof_toolset_2012/index.php for possible patent claims.
@@ -127,3 +91,4 @@ author = "Felzenszwalb, P. F. and Girshick, R. B. and McAllester, D. and Ramanan
 journal = "IEEE Transactions on Pattern Analysis and Machine Intelligence",
 year = "2010", volume = "32", number = "9", pages = "1627--1645"}
 ```
+
