@@ -195,6 +195,10 @@ void Main::doWork()
                 CvScalar rectangleColor = red;
                 cvRectangle(img, tld->currBB->tl(), tld->currBB->br(), rectangleColor, 2, 8, 0);
             }
+            else
+            {
+                tld->release();
+            }
 
             CvFont font;
             cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX, .5, .5, 0, 2, 8);
